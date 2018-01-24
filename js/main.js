@@ -40,7 +40,7 @@ export default class Main {
    * 帧数取模定义成生成的频率
    */
   enemyGenerate() {
-    if ( databus.frame % 30 === 0 ) {
+    if ( databus.frame % 60 === 0 ) {
       let enemy = databus.pool.getItemByClass('enemy', Enemy)
       enemy.init(6)
       databus.enemys.push(enemy)
@@ -51,21 +51,22 @@ export default class Main {
   collisionDetection() {
     let that = this
 
-    databus.bullets.forEach((bullet) => {
+    /*databus.bullets.forEach((bullet) => {
       for ( let i = 0, il = databus.enemys.length; i < il;i++ ) {
         let enemy = databus.enemys[i]
 
         if ( !enemy.isPlaying && enemy.isCollideWith(bullet) ) {
-          enemy.playAnimation()
-          that.music.playExplosion()
+          //enemy.playAnimation()
+          //that.music.playExplosion()
 
-          bullet.visible = false
+          //bullet.visible = false
+
           databus.score  += 1
 
           break
         }
       }
-    })
+    })*/
 
     for ( let i = 0, il = databus.enemys.length; i < il;i++ ) {
       let enemy = databus.enemys[i]
@@ -130,6 +131,8 @@ export default class Main {
               item.update()
             })
 
+    this.player.update()
+
     this.enemyGenerate()
 
     this.collisionDetection()
@@ -142,10 +145,10 @@ export default class Main {
     this.update()
     this.render()
 
-    if ( databus.frame % 20 === 0 ) {
+    /*if ( databus.frame % 20 === 0 ) {
       this.player.shoot()
       this.music.playShoot()
-    }
+    }*/
 
     // 游戏结束停止帧循环
     if ( databus.gameOver ) {

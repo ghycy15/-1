@@ -20,11 +20,12 @@ export default class Enemy extends Animation {
     super(ENEMY_IMG_SRC, ENEMY_WIDTH, ENEMY_HEIGHT)
 
     this.initExplosionAnimation()
+    this.isCleared = false
   }
 
   init(speed) {
-    this.x = rnd(0, window.innerWidth - ENEMY_WIDTH)
-    this.y = -this.height
+    this.x = window.innerWidth + this.width 
+    this.y = window.innerHeight * 0.6 - this.height
 
     this[__.speed] = speed
 
@@ -45,12 +46,14 @@ export default class Enemy extends Animation {
     this.initFrames(frames)
   }
 
-  // 每一帧更新子弹位置
+  // 每一帧更新敌人位置
   update() {
-    this.y += this[__.speed]
+    this.x -= this[__.speed]
 
     // 对象回收
-    if ( this.y > window.innerHeight + this.height )
+    if ( this.x < 0 - this.width) {
       databus.removeEnemey(this)
+      databus.score += 1
+    }
   }
 }

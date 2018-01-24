@@ -17,8 +17,8 @@ export default class Player extends Sprite {
     super(PLAYER_IMG_SRC, PLAYER_WIDTH, PLAYER_HEIGHT)
 
     // 玩家默认处于屏幕底部居中位置
-    this.x = screenWidth / 2 - this.width / 2
-    this.y = screenHeight - this.height - 30
+    this.x = screenWidth / 8
+    this.y = screenHeight * 0.6 - this.height //this.height + 30
 
     // 用于在手指移动的时候标识手指是否已经在飞机上了
     this.touched = false
@@ -27,6 +27,12 @@ export default class Player extends Sprite {
 
     // 初始化事件监听
     this.initEvent()
+
+    this.touchStartTime = null
+    this.touchEndTime = null
+    this.touchLength = null
+    this.isMoving = false
+
   }
 
   /**
@@ -77,34 +83,21 @@ export default class Player extends Sprite {
   initEvent() {
     canvas.addEventListener('touchstart', ((e) => {
       e.preventDefault()
-
-      let x = e.touches[0].clientX
-      let y = e.touches[0].clientY
-
-      //
-      if ( this.checkIsFingerOnAir(x, y) ) {
+      if (!this.isMoving) {
+        this.touchStartTime = new Date()
         this.touched = true
-
-        this.setAirPosAcrossFingerPosZ(x, y)
       }
-
-    }).bind(this))
-
-    canvas.addEventListener('touchmove', ((e) => {
-      e.preventDefault()
-
-      let x = e.touches[0].clientX
-      let y = e.touches[0].clientY
-
-      if ( this.touched )
-        this.setAirPosAcrossFingerPosZ(x, y)
-
     }).bind(this))
 
     canvas.addEventListener('touchend', ((e) => {
       e.preventDefault()
 
-      this.touched = false
+      if (this.touched === true) {
+        this.touchEndTime = new Date()
+        this.touchLength = this.touchEndTime - this.touchStartTime
+        this.touched = false
+        this.isMoving = true
+      }
     }).bind(this))
   }
 
@@ -122,5 +115,27 @@ export default class Player extends Sprite {
     )
 
     databus.bullets.push(bullet)
+  }
+
+
+  update() {
+    if (!this.isMoving) {
+      return;
+    }
+    const currentTime = new Date()
+    const timeDiff = currentTime - this.touchEndTime
+    let offset = 0
+    if (timeDiff < this.touchLength * 2) {
+      offset = timeDiff / 2
+    } else {
+      offset = (this.touchLength - (timeDiff - this.touchLength * 2) / 2)
+    }
+
+    if (offset < 0 && currentTime !== this.touchEndTime) {
+      this.isMoving = false
+      this.y = screenHeight * 0.6 - this.height
+      return
+    }
+    this.y = (screenHeight * 0.6 - this.height) - offset
   }
 }
