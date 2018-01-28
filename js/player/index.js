@@ -18,7 +18,8 @@ export default class Player extends Sprite {
 
     // 玩家默认处于屏幕底部居中位置
     this.x = screenWidth / 8
-    this.y = screenHeight * 0.6 - this.height //this.height + 30
+    this.y = screenHeight * 0.72 - this.height //this.height + 30
+    this.initY = this.y
 
     // 用于在手指移动的时候标识手指是否已经在飞机上了
     this.touched = false
@@ -32,6 +33,9 @@ export default class Player extends Sprite {
     this.touchEndTime = null
     this.touchLength = null
     this.isMoving = false
+
+    this.speed = 0
+    this.a = 0
 
   }
 
@@ -97,6 +101,9 @@ export default class Player extends Sprite {
         this.touchLength = this.touchEndTime - this.touchStartTime
         this.touched = false
         this.isMoving = true
+
+        this.a = (this.touchLength < 300 ? this.touchLength : 300) / 10
+        this.speed = this.a
       }
     }).bind(this))
   }
@@ -124,18 +131,19 @@ export default class Player extends Sprite {
     }
     const currentTime = new Date()
     const timeDiff = currentTime - this.touchEndTime
-    let offset = 0
-    if (timeDiff < this.touchLength * 2) {
+
+    /*if (timeDiff < this.touchLength * 2) {
       offset = timeDiff / 2
     } else {
       offset = (this.touchLength - (timeDiff - this.touchLength * 2) / 2)
-    }
-
-    if (offset < 0 && currentTime !== this.touchEndTime) {
+    }*/
+    this.a -= 2
+    this.speed += this.a 
+    this.y = (screenHeight * 0.72 - this.height) - this.speed
+    if (this.y > this.initY && currentTime !== this.touchEndTime) {
       this.isMoving = false
-      this.y = screenHeight * 0.6 - this.height
+      this.y = this.initY
       return
     }
-    this.y = (screenHeight * 0.6 - this.height) - offset
   }
 }

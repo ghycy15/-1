@@ -25,7 +25,7 @@ export default class Enemy extends Animation {
 
   init(speed) {
     this.x = window.innerWidth + this.width 
-    this.y = window.innerHeight * 0.6 - this.height
+    this.y = window.innerHeight * 0.72 - this.height
 
     this[__.speed] = speed
 

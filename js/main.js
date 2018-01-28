@@ -1,5 +1,6 @@
 import Player     from './player/index'
 import Enemy      from './npc/enemy'
+import Coin       from './npc/coin'
 import BackGround from './runtime/background'
 import GameInfo   from './runtime/gameinfo'
 import Music      from './runtime/music'
@@ -47,6 +48,14 @@ export default class Main {
     }
   }
 
+  coinGenerate() {
+    if (databus.frame % 60 === 0) {
+      let coin = databus.pool.getItemByClass('coin', Coin)
+      coin.init(6)
+      databus.coins.push(coin)
+    }
+  }
+
   // 全局碰撞检测
   collisionDetection() {
     let that = this
@@ -73,8 +82,17 @@ export default class Main {
 
       if ( this.player.isCollideWith(enemy) ) {
         databus.gameOver = true
-
         break
+      }
+    }
+
+    for (let i = 0, il = databus.coins.length; i < il; i++) {
+      let coin = databus.coins[i]
+
+      if (this.player.isCollideWith(coin)) {
+        databus.score += 1
+        databus.removeCoin(coin)
+        break;
       }
     }
   }
@@ -104,11 +122,14 @@ export default class Main {
 
     this.bg.render(ctx)
 
-    databus.bullets
-           .concat(databus.enemys)
+    databus.enemys
            .forEach((item) => {
               item.drawToCanvas(ctx)
             })
+    databus.coins
+      .forEach((item) => {
+        item.drawToCanvas(ctx)
+      })
 
     this.player.drawToCanvas(ctx)
 
@@ -125,8 +146,12 @@ export default class Main {
   update() {
     this.bg.update()
 
-    databus.bullets
-           .concat(databus.enemys)
+    databus.coins
+      .forEach((item) => {
+        item.update()
+      })
+
+    databus.enemys
            .forEach((item) => {
               item.update()
             })
@@ -134,6 +159,8 @@ export default class Main {
     this.player.update()
 
     this.enemyGenerate()
+
+    this.coinGenerate()
 
     this.collisionDetection()
   }
